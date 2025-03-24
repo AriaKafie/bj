@@ -1,0 +1,49 @@
+
+#include <algorithm>
+#include <iostream>
+#include <stdlib.h>
+#include <time.h>
+
+#include "types.h"
+
+Card random_card()
+{
+    return make_card(rand() % (KING   - ACE   + 1) + ACE,
+                     rand() % (SPADES - CLUBS + 1) + CLUBS);
+}
+
+int sum(Card *hand)
+{
+    int sum = 0;
+
+    for (Rank r; r = rank_of(*hand); hand++)
+    {
+        if (r == ACE)
+            sum += sum > 10 ? 1 : 11;
+        else
+            sum += std::min(r, TEN);
+    }
+
+    return sum;
+}
+
+int main()
+{
+    srand(time(NULL));
+    
+    Card deck[52], hand[2][11] = {};
+
+    do
+    {
+        hand[DEALER][0] = random_card();
+        hand[DEALER][1] = random_card();
+        
+        hand[PLAYER][1] = random_card();
+        hand[PLAYER][0] = random_card();
+
+        for (char opt = '\0'; opt != 's' && (hand[PLAYER]) < 21;)
+        {
+            std::cout << 
+        }
+    }
+}
