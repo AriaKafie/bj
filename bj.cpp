@@ -10,16 +10,6 @@
 
 constexpr int BET_DEFAULT = 100;
 
-int num_cards(Card *hand)
-{
-    int cards = 0;
-    
-    for (;*hand; hand++)
-        cards++;
-
-    return cards;
-}
-
 Card random_card()
 {
     return make_card(rand() % (KING   - ACE   + 1) + ACE,
@@ -41,6 +31,16 @@ int sum(Card *hand)
         if (sum + 10 <= 21) sum += 10;
 
     return sum;
+}
+
+bool blackjack(Card *hand)
+{
+    int num_cards = 0;
+    
+    for (Card *c = hand; *c; c++)
+        num_cards++;
+
+    return num_cards == 2 && sum(hand) == 21;
 }
 
 void refresh(Card *dealer, Card *player, int money, bool hide = false)
@@ -75,26 +75,15 @@ void refresh(Card *dealer, Card *player, int money, bool hide = false)
 
 Outcome result(Card *dealer_hand, Card *player_hand)
 {
-    int dealer       = sum(dealer_hand);
-    int player       = sum(player_hand);
-    int dealer_cards = 0;
-    int player_cards = 0;
-
-    bool dealer_bj = num_cards(dealer_hand) == 2 && dealer == 21;
-    bool player_bj = num_cards(player_hand) == 2 && player == 21;
+    int dealer = sum(dealer_hand);
+    int player = sum(player_hand);
 
     if (player > 21) return LOSS;
 
     if (player == 21)
     {
-        if (player_bj)
-        {
-            return dealer_bj ? PUSH : BLACKJACK;
-        }
-        else
-        {
-            return dealer_bj ? LOSS : dealer == 21 ? PUSH : WIN;
-        }
+        return blackjack(player_hand) ? blackjack(dealer_hand) ? PUSH : BLACKJACK
+                                      : blackjack(dealer_hand) ? LOSS : dealer == 21 ? PUSH : WIN;
     }
 
     return dealer >  player ? dealer > 21 ? WIN : LOSS
@@ -146,7 +135,7 @@ int main()
             if (opt != 'h') break;
         }
 
-        if (sum(hand[PLAYER]) <= 21)
+        if (sum(hand[PLAYER]) <= 21 && !blackjack(hand[PLAYER]))
             for (;sum(hand[DEALER]) < 17; *d++ = random_card());
 
         switch (result(hand[DEALER], hand[PLAYER]))
