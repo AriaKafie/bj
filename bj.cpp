@@ -32,9 +32,9 @@ int sum(Card *hand)
 
     for (Rank r; r = rank_of(*hand); hand++)
     {
-        if (r == ACE) aces++, sum++;
-        else
-            sum += std::min(int(r), int(TEN));
+        if (r == ACE) aces++;
+        
+        sum += std::min(int(r), int(TEN));
     }
 
     for (int i = 0; i < aces; i++)

@@ -1,4 +1,0 @@
-all:
-	g++ *cpp -o bj
-clean:
-	rm *~ bj
