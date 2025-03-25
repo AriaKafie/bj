@@ -2,11 +2,26 @@
 #ifndef TYPES_H
 #define TYPES_H
 
+#include <sstream>
 #include <string>
 
 typedef unsigned short Card;
 typedef unsigned short Rank;
 typedef unsigned short Suit;
+
+std::string to_string(Card *hand)
+{
+    
+}
+
+enum Option
+{
+    NONE   == '\0',
+    STAND  == 's',
+    HIT    == 'h',
+    SPLIT  == 'p',
+    DOUBLE == 'd'
+};
 
 enum
 {
