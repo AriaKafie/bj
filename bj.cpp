@@ -35,8 +35,10 @@ int sum(Card *hand)
     return sum;
 }
 
-std::string to_string(Card *hand)
+std::string to_string(Card *hand, bool arrow = false)
 {
+    if (!hand) return "";
+    
     std::stringstream ss;
 
     for (Card *c = hand; *c; c++)
@@ -44,7 +46,7 @@ std::string to_string(Card *hand)
     ss << "\n";
     for (Card *c = hand; *c; c++)
         ss << "|" << to_string(*c) << "| ";
-    ss << "(" << sum(hand) << ")\n";
+    ss << "(" << sum(hand) << (arrow ? ") <\n" : ")\n");
     for (Card *c = hand; *c; c++)
         ss << "+---+ ";
     ss << "\n";
@@ -107,8 +109,11 @@ void hit_loop(bool do_split, Card (*hand)[11], Card *split = nullptr)
     
     while (sum(player) < 21)
     {
-        refresh(hand[DEALER], hand[PLAYER], true, split);
-
+        system("clear");
+        printf("+---+\n|%s|\n+---+\n%s%s\n", to_string(*(hand[DEALER])).c_str(),
+               to_string(hand[PLAYER], !do_split && split).c_str(),
+               to_string(split, do_split).c_str());
+            
         char opt;
         std::cout << "(S)tand, (H)it: [h]" << std::endl;
 
@@ -174,7 +179,9 @@ int main()
 
                 opt = line.empty() ? HIT : line[0];
                 
-            } while (std::string("shpd").find(opt = std::tolower(opt)) == std::string::npos || (opt == DOUBLE || opt == SPLIT) && bet > money || opt == SPLIT && rank_of(*(p - 2)) != rank_of(*(p - 1)));
+            } while (std::string("shpd").find(opt = std::tolower(opt)) == std::string::npos ||
+                     (opt == DOUBLE || opt == SPLIT) && bet > money                         ||
+                     opt == SPLIT && rank_of(*(p - 2)) != rank_of(*(p - 1)));
 
             switch (opt)
             {
