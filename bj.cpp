@@ -10,7 +10,7 @@
 
 #define BET_DEFAULT 100
 
-void clear() { system("clear"); }
+void clear() { /*system("clear");*/ }
 
 std::string get_line()
 {
@@ -84,10 +84,10 @@ Outcome result(Card *dealer_hand, Card *player_hand)
 
 void hit_loop(bool do_split, Card (*hand)[11])
 {
-    Card *player = hand[do_split ? SPLIT : PLAYER], *p = player;
-    for (;*p; p++);
+    Card *player;
+    for (player = hand[do_split ? SPLIT : PLAYER]; *player; player++);
     
-    while (sum(player) < 21)
+    while (sum(hand[do_split ? SPLIT : PLAYER]) < 21)
     {
         clear();
         printf("%s%s%s\n", to_string(*hand[DEALER]).c_str(),
@@ -106,7 +106,7 @@ void hit_loop(bool do_split, Card (*hand)[11])
         } while (opt != OPT_STAND && opt != OPT_HIT);
 
         if (opt == OPT_HIT)
-            *p++ = random_card();
+            *player++ = random_card();
 
         else break;
     }
