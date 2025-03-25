@@ -100,11 +100,14 @@ Outcome result(Card *dealer_hand, Card *player_hand)
          : dealer == player ? PUSH              : WIN;
 }
 
-void hit_loop(Card *dealer, Card *player)
+void hit_loop(bool do_split, Card (*hand)[11], Card *split = nullptr)
 {
-    for (Card *p = player + 3; sum(player) < 21;)
+    Card *player = do_split ? split : hand[PLAYER], *p = player;
+    for (;*p; p++);
+    
+    while (sum(player) < 21)
     {
-        refresh(dealer, player, true);
+        refresh(hand[DEALER], hand[PLAYER], true, split);
 
         char opt;
         std::cout << "(S)tand, (H)it: [h]" << std::endl;
@@ -113,11 +116,8 @@ void hit_loop(Card *dealer, Card *player)
         {
             std::string line = get_line();
 
-            if (line.empty()) opt = HIT;
+            opt = line.empty() ? HIT : line[0];
 
-            else if (std::istringstream is(line); !(is >> opt))
-                opt = NONE;
-            
         } while (opt != STAND && opt != HIT);
 
         if (opt == HIT)
@@ -156,7 +156,7 @@ int main()
         memset(hand,  0, sizeof(hand));
         memset(split, 0, sizeof(split));
 
-        Card *d = hand[DEALER], *p = hand[PLAYER], *s = split;
+        Card *d = hand[DEALER], *p = hand[PLAYER], *s = nullptr;
         
         *d++ = random_card(), *d++ = random_card();
         *p++ = random_card(), *p++ = random_card();
@@ -166,84 +166,58 @@ int main()
             refresh(hand[DEALER], hand[PLAYER], true);
 
             char opt;
-            std::cout << "(S)tand, (H)it, (D)ouble: [h]" << std::endl;
+            std::cout << "(S)tand, (H)it, s(P)lit, (D)ouble: [h]" << std::endl;
 
             do
             {
                 std::string line = get_line();
 
-                if (line.empty()) opt = HIT;
+                opt = line.empty() ? HIT : line[0];
+                
+            } while (std::string("shpd").find(opt = std::tolower(opt)) == std::string::npos || (opt == DOUBLE || opt == SPLIT) && bet > money || opt == SPLIT && rank_of(*(p - 2)) != rank_of(*(p - 1)));
 
-                else if (std::istringstream is(line); !(is >> opt))
-                    opt = NONE;
-
-            } while (std::string("shpd").find(opt = std::tolower(opt)) == std::string::npos || opt == DOUBLE && bet > money);
-
-            if (opt == HIT)
+            switch (opt)
             {
-                *p++ = random_card();
-                hit_loop(hand[DEALER], hand[PLAYER]);
+                case HIT:
+                    *p++ = random_card();
+                    hit_loop(false, hand);
+                break;
+                case SPLIT:
+                    money   -= bet;
+                    s        = split;
+                    *s++     = *(p - 1);
+                    *s++     = random_card();
+                    *(p - 1) = random_card();
+                    hit_loop(false, hand, split);
+                    hit_loop(true,  hand, split);
+                break;
+                case DOUBLE:
+                    *p++ = random_card();
+                    money -= bet;
+                    bet *= 2;
+                break;
             }
-            else if (opt == SPLIT)
-            {
+        }
 
+        for (Card *hands[3] = { hand[PLAYER], s ? split : s, nullptr }, i = 0, *h; h = hands[i]; i++)
+        {
+            if (sum(h) <= 21 && !blackjack(h))
+                for (;sum(hand[DEALER]) < 17; *d++ = random_card());
+
+            switch (result(hand[DEALER], h))
+            {
+                case BLACKJACK:
+                    money += bet + bet * 3 / 2;
+                break;
+                case WIN:
+                    money += bet * 2;
+                break;
+                case PUSH:
+                    money += bet;
             }
-            else if (opt == DOUBLE)
-            {
-                *p++ = random_card();
-                money -= bet;
-                bet *= 2;
-            }
-        }
-
-        /*refresh(hand[DEALER], hand[PLAYER], true);
-        
-        if (rank_of(hand[PLAYER][0]) == rank_of(hand[PLAYER][1]) && money >= bet)
-        {
-            std::cout << "Split: y/[n]" << std::endl;
-            
-            do
-            {
-                std::string in;
-                std::getline(std::cin, in);
-                std::istringstream is(in);
-                is >> in;
-            } while (!(in == "y"));
         }
         
-        std::cout << "(S)tand, (H)it, s(P)lit, (D)ouble down: [h]" << std::endl;
-        std::getline(std::cin, in);
-
-        Option opt = in.size() ? std::tolower(in[0]) : HIT;
-
-        if (opt == SPLIT && rank_of(player[0][0]) == rank_of(player[0][1]))
-        {
-            *s++     = *(p - 1);
-            *s++     = random_card();
-            *(p - 1) = random_card();
-
-            action(player[0]);
-            action(player[1]);
-        }
-        
-        action(player[0], opt);*/
-
-        if (sum(hand[PLAYER]) <= 21 && !blackjack(hand[PLAYER]))
-            for (;sum(hand[DEALER]) < 17; *d++ = random_card());
-
-        switch (result(hand[DEALER], hand[PLAYER]))
-        {
-            case BLACKJACK:
-                money += bet + bet * 3 / 2;
-            break;
-            case WIN:
-                money += bet * 2;
-            break;
-            case PUSH:
-                money += bet;
-        }
-        
-        refresh(hand[DEALER], hand[PLAYER], false);
+        refresh(hand[DEALER], hand[PLAYER], false, s ? split : nullptr);
         
     } while (money);
 }
