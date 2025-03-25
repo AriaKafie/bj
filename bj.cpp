@@ -1,5 +1,4 @@
 
-#include <algorithm>
 #include <cctype>
 #include <iostream>
 #include <sstream>
@@ -10,6 +9,8 @@
 #include "types.h"
 
 #define BET_DEFAULT 100
+
+void clear() { system("clear"); }
 
 std::string get_line()
 {
@@ -64,27 +65,6 @@ bool blackjack(Card *hand)
     return num_cards == 2 && sum(hand) == 21;
 }
 
-void refresh(Card (*hand)[11], bool hide = false)
-{
-    /*system("clear");
-    
-    if (hide || sum(player) > 21)
-    {
-        std::cout << "+---+\n|" << to_string(*dealer) << "|\n+---+\n";
-    }
-    else
-    {
-        std::cout << to_string(dealer);
-    }
-
-    std::cout << to_string(player);
-
-    if (split)
-        std::cout << to_string(split);
-
-        std::cout << std::endl;*/
-}
-
 Outcome result(Card *dealer_hand, Card *player_hand)
 {
     int dealer = sum(dealer_hand);
@@ -109,7 +89,7 @@ void hit_loop(bool do_split, Card (*hand)[11])
     
     while (sum(player) < 21)
     {
-        system("clear");
+        clear();
         printf("%s%s%s\n", to_string(*hand[DEALER]).c_str(),
                to_string(hand[PLAYER], !do_split && *hand[SPLIT]).c_str(),
                to_string(hand[SPLIT], do_split).c_str());
@@ -167,7 +147,7 @@ int main()
 
         if (sum(hand[PLAYER]) < 21)
         {
-            system("clear");
+            clear();
             printf("%s%s\n", to_string(*hand[DEALER]).c_str(), to_string(hand[PLAYER]).c_str());
 
             char opt;
@@ -181,7 +161,7 @@ int main()
                 
             } while (std::string("shpd").find(opt = std::tolower(opt)) == std::string::npos ||
                      (opt == OPT_DOUBLE || opt == OPT_SPLIT) && bet > money                 ||
-                     opt == OPT_SPLIT && rank_of(*(player - 2)) != rank_of(*(player - 1)));
+                     opt == OPT_SPLIT && value_of(*(player - 2)) != value_of(*(player - 1)));
 
             switch (opt)
             {
@@ -191,7 +171,6 @@ int main()
                 break;
                 case OPT_SPLIT:
                     money        -= bet;
-                    split         = split;
                     *split++      = *(player - 1);
                     *split++      = random_card();
                     *(player - 1) = random_card();
@@ -221,11 +200,12 @@ int main()
                 break;
                 case PUSH:
                     money += bet;
+                break;
             }
         }
 
-        system("clear");
-        printf("%s%s%s\n", sum(hand[PLAYER]) > 21 ? to_string(*hand[DEALER]).c_str() : to_string(hand[DEALER]).c_str(),
+        clear();
+        printf("%s%s%s\n", sum(hand[PLAYER]) > 21 && (!*hand[SPLIT] || sum(hand[SPLIT]) > 21) ? to_string(*hand[DEALER]).c_str() : to_string(hand[DEALER]).c_str(),
                            to_string(hand[PLAYER]).c_str(),
                            to_string(hand[SPLIT] ).c_str());
         

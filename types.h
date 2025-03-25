@@ -2,6 +2,7 @@
 #ifndef TYPES_H
 #define TYPES_H
 
+#include <algorithm>
 #include <stdlib.h>
 
 typedef unsigned short Card;
@@ -64,6 +65,10 @@ inline std::string face_string(Card c) {
 
 inline std::string to_string(Card c) {
     return "+---+\n|" + face_string(c) + "|\n+---+\n";
+}
+
+inline int value_of(Card c) {
+    return std::min(int(rank_of(c)), int(TEN));
 }
 
 #endif
