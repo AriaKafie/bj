@@ -1,6 +1,6 @@
 all:
-	g++ *cpp -o bj
+	g++ -fpermissive -w bj.cpp -o bj
 debug:
-	g++ -g *cpp -o debug
+	g++ -fpermissive -w -g bj.cpp -o debug
 clean:
 	rm *~ bj

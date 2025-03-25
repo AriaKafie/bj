@@ -2,25 +2,19 @@
 #ifndef TYPES_H
 #define TYPES_H
 
-#include <sstream>
-#include <string>
+#include <stdlib.h>
 
 typedef unsigned short Card;
 typedef unsigned short Rank;
 typedef unsigned short Suit;
 
-std::string to_string(Card *hand)
-{
-    
-}
-
 enum Option
 {
-    NONE   == '\0',
-    STAND  == 's',
-    HIT    == 'h',
-    SPLIT  == 'p',
-    DOUBLE == 'd'
+    NONE   = '\0',
+    STAND  = 's',
+    HIT    = 'h',
+    SPLIT  = 'p',
+    DOUBLE = 'd'
 };
 
 enum
@@ -56,6 +50,12 @@ inline Suit suit_of(Card c) {
 
 inline Rank rank_of(Card c) {
     return c & 0xff;
+}
+
+inline Card random_card()
+{
+    return make_card(rand() % (KING   - ACE   + 1) + ACE,
+                     rand() % (SPADES - CLUBS + 1) + CLUBS);
 }
 
 inline std::string to_string(Card c) {

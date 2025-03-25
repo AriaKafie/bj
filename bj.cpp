@@ -2,7 +2,8 @@
 #include <algorithm>
 #include <cctype>
 #include <iostream>
-#include <stdlib.h>
+#include <sstream>
+#include <string>
 #include <string.h>
 #include <time.h>
 
@@ -15,17 +16,6 @@ std::string get_line()
     std::string line;
     std::getline(std::cin, line);
     return line;
-    // std::string in, token;
-    // std::getline(std::cin, in);
-    // std::istringstream is(in);
-    // is >> token;
-    // return token;
-}
-
-Card random_card()
-{
-    return make_card(rand() % (KING   - ACE   + 1) + ACE,
-                     rand() % (SPADES - CLUBS + 1) + CLUBS);
 }
 
 int sum(Card *hand)
@@ -45,6 +35,22 @@ int sum(Card *hand)
     return sum;
 }
 
+std::string to_string(Card *hand)
+{
+    std::stringstream ss;
+
+    for (Card *c = hand; *c; c++)
+        ss << "+---+ ";
+    ss << "\n";
+    for (Card *c = hand; *c; c++)
+        ss << "|" << to_string(*c) << "| ";
+    ss << "(" << sum(hand) << ")\n";
+    for (Card *c = hand; *c; c++)
+        ss << "+---+ ";
+
+    return ss.str();
+}
+
 bool blackjack(Card *hand)
 {
     int num_cards = 0;
@@ -57,7 +63,7 @@ bool blackjack(Card *hand)
 
 void refresh(Card *dealer, Card *player, bool hide = false)
 {
-    //system("clear");
+    system("clear");
     
     if (hide || sum(player) > 21)
     {
@@ -65,26 +71,10 @@ void refresh(Card *dealer, Card *player, bool hide = false)
     }
     else
     {
-        for (Card *c = dealer; *c; c++)
-            std::cout << "+---+ ";
-        std::cout << std::endl;
-        for (Card *c = dealer; *c; c++)
-            std::cout << "|" << to_string(*c) << "| ";
-        std::cout << std::endl;
-        for (Card *c = dealer; *c; c++)
-            std::cout << "+---+ ";
-        std::cout << std::endl;
+        std::cout << to_string(dealer) << "\n";
     }
 
-    for (Card *c = player; *c; c++)
-        std::cout << "+---+ ";
-    std::cout << std::endl;
-    for (Card *c = player; *c; c++)
-        std::cout << "|" << to_string(*c) << "| ";
-    std::cout << std::endl;
-    for (Card *c = player; *c; c++)
-        std::cout << "+---+ ";
-    std::cout << std::endl << std::endl;
+    std::cout << to_string(player) << "\n" << std::endl;
 }
 
 Outcome result(Card *dealer_hand, Card *player_hand)
@@ -104,33 +94,32 @@ Outcome result(Card *dealer_hand, Card *player_hand)
          : dealer == player ? PUSH              : WIN;
 }
 
-/*void action(Card *dealer, Card *player)
+void action(Card *dealer, Card *player)
 {
-    for (Card *p = player + 2; sum(hand) < 21;)
+    for (Card *p = player + 2; sum(player) < 21;)
     {
-        refresh(hand[DEALER], hand[PLAYER], money, true);
+        refresh(dealer, player, true);
 
-        switch (opt)
+        char opt;
+        std::cout << "(S)tand, (H)it: [h]" << std::endl;
+
+        do
         {
-            case 'h':
-                *p++ = random_card();
-            break;
-            case 'd':
-                *p++ = random_card();
-                money += bet;
-                bet = std::min(money, bet * 2);
-                money -= bet;
-            break;
-        }
+            std::string line = get_line();
 
-        std::cout << "(S)tand, (H)it, (D)ouble down: [h]" << std::endl;
-        std::getline(std::cin, in);
+            if (line.empty()) opt = HIT;
 
-        opt = in.size() ? std::tolower(in[0]) : 'h';
+            else if (std::istringstream is(line); !(is >> opt))
+                opt = NONE;
+            
+        } while (opt != STAND && opt != HIT);
 
-        if (opt == 'd' || opt == 's') break;
+        if (opt == HIT)
+            *p++ = random_card();
+
+        else break;
     }
-}*/
+}
 
 int main()
 {
@@ -157,19 +146,35 @@ int main()
         } while (bet < 1 || bet > money);
         
         money -= bet;
-        
-        memset(dealer, 0, sizeof(dealer));
-        memset(hand,   0, sizeof(hand));
+
+        memset(hand,  0, sizeof(hand));
+        memset(split, 0, sizeof(split));
 
         Card *d = hand[DEALER], *p = hand[PLAYER], *s = split;
         
         *d++ = random_card(), *d++ = random_card();
         *p++ = random_card(), *p++ = random_card();
 
-        for (Option opt; sum(hand[PLAYER]) < 21)
+        for (Option opt; sum(hand[PLAYER]) < 21;)
         {
-            std::cout << to_string(hand[DEALER]) << std::endl
-                      << to_string(hand[PLAYER]) << std::endl;
+            refresh(hand[DEALER], hand[PLAYER], true);
+
+            std::cout << "(S)tand, (H)it, (D)ouble: [h]" << std::endl;
+            std::string in = get_line();
+
+            switch (opt = in.size() ? in[0] : HIT)
+            {
+                case HIT:
+                    *p++ = random_card();
+                break;
+                case DOUBLE:
+                    *p++ = random_card();
+                    money -= bet;
+                    bet *= 2;
+                break;
+            }
+
+            if (opt == DOUBLE || opt == STAND) break;
         }
 
         /*refresh(hand[DEALER], hand[PLAYER], true);
@@ -219,7 +224,7 @@ int main()
                 money += bet;
         }
         
-        refresh(hand[DEALER], hand[PLAYER], money);
+        refresh(hand[DEALER], hand[PLAYER]);
         
     } while (money);
 }
