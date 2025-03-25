@@ -10,11 +10,11 @@ typedef unsigned short Suit;
 
 enum Option
 {
-    NONE   = '\0',
-    STAND  = 's',
-    HIT    = 'h',
-    SPLIT  = 'p',
-    DOUBLE = 'd'
+    OPT_NONE   = '\0',
+    OPT_STAND  = 's',
+    OPT_HIT    = 'h',
+    OPT_SPLIT  = 'p',
+    OPT_DOUBLE = 'd'
 };
 
 enum
@@ -36,7 +36,7 @@ enum
 
 enum Outcome { BLACKJACK, WIN, PUSH, LOSS };
 
-enum Player { DEALER, PLAYER };
+enum Hand { DEALER, PLAYER, SPLIT };
 
 enum { CLUBS, DIAMONDS, HEARTS, SPADES };
 
@@ -58,8 +58,12 @@ inline Card random_card()
                      rand() % (SPADES - CLUBS + 1) + CLUBS);
 }
 
-inline std::string to_string(Card c) {
+inline std::string face_string(Card c) {
     return std::string(1, " A23456789TJQK"[rank_of(c)]) + "_" + std::string(1, "CDHS"[suit_of(c)]);
+}
+
+inline std::string to_string(Card c) {
+    return "+---+\n|" + face_string(c) + "|\n+---+\n";
 }
 
 #endif

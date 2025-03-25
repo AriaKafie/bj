@@ -9,7 +9,7 @@
 
 #include "types.h"
 
-constexpr int BET_DEFAULT = 100;
+#define BET_DEFAULT 100
 
 std::string get_line()
 {
@@ -37,7 +37,7 @@ int sum(Card *hand)
 
 std::string to_string(Card *hand, bool arrow = false)
 {
-    if (!hand) return "";
+    if (!*hand) return "";
     
     std::stringstream ss;
 
@@ -45,7 +45,7 @@ std::string to_string(Card *hand, bool arrow = false)
         ss << "+---+ ";
     ss << "\n";
     for (Card *c = hand; *c; c++)
-        ss << "|" << to_string(*c) << "| ";
+        ss << "|" << face_string(*c) << "| ";
     ss << "(" << sum(hand) << (arrow ? ") <\n" : ")\n");
     for (Card *c = hand; *c; c++)
         ss << "+---+ ";
@@ -64,9 +64,9 @@ bool blackjack(Card *hand)
     return num_cards == 2 && sum(hand) == 21;
 }
 
-void refresh(Card *dealer, Card *player, bool hide, Card *split = nullptr)
+void refresh(Card (*hand)[11], bool hide = false)
 {
-    system("clear");
+    /*system("clear");
     
     if (hide || sum(player) > 21)
     {
@@ -82,7 +82,7 @@ void refresh(Card *dealer, Card *player, bool hide, Card *split = nullptr)
     if (split)
         std::cout << to_string(split);
 
-    std::cout << std::endl;
+        std::cout << std::endl;*/
 }
 
 Outcome result(Card *dealer_hand, Card *player_hand)
@@ -102,17 +102,17 @@ Outcome result(Card *dealer_hand, Card *player_hand)
          : dealer == player ? PUSH              : WIN;
 }
 
-void hit_loop(bool do_split, Card (*hand)[11], Card *split = nullptr)
+void hit_loop(bool do_split, Card (*hand)[11])
 {
-    Card *player = do_split ? split : hand[PLAYER], *p = player;
+    Card *player = hand[do_split ? SPLIT : PLAYER], *p = player;
     for (;*p; p++);
     
     while (sum(player) < 21)
     {
         system("clear");
-        printf("+---+\n|%s|\n+---+\n%s%s\n", to_string(*(hand[DEALER])).c_str(),
-               to_string(hand[PLAYER], !do_split && split).c_str(),
-               to_string(split, do_split).c_str());
+        printf("%s%s%s\n", to_string(*hand[DEALER]).c_str(),
+               to_string(hand[PLAYER], !do_split && *hand[SPLIT]).c_str(),
+               to_string(hand[SPLIT], do_split).c_str());
             
         char opt;
         std::cout << "(S)tand, (H)it: [h]" << std::endl;
@@ -121,11 +121,11 @@ void hit_loop(bool do_split, Card (*hand)[11], Card *split = nullptr)
         {
             std::string line = get_line();
 
-            opt = line.empty() ? HIT : line[0];
+            opt = line.empty() ? OPT_HIT : line[0];
 
-        } while (opt != STAND && opt != HIT);
+        } while (opt != OPT_STAND && opt != OPT_HIT);
 
-        if (opt == HIT)
+        if (opt == OPT_HIT)
             *p++ = random_card();
 
         else break;
@@ -136,7 +136,7 @@ int main()
 {
     srand(time(NULL));
 
-    Card hand[2][11], split[11];
+    Card hand[3][11];
 
     int bet, money = 500;
 
@@ -158,17 +158,17 @@ int main()
         
         money -= bet;
 
-        memset(hand,  0, sizeof(hand));
-        memset(split, 0, sizeof(split));
+        memset(hand, 0, sizeof(hand));
 
-        Card *d = hand[DEALER], *p = hand[PLAYER], *s = nullptr;
+        Card *dealer = hand[DEALER], *player = hand[PLAYER], *split = hand[SPLIT];
         
-        *d++ = random_card(), *d++ = random_card();
-        *p++ = random_card(), *p++ = random_card();
+        *dealer++ = random_card(), *dealer++ = random_card();
+        *player++ = random_card(), *player++ = random_card();
 
         if (sum(hand[PLAYER]) < 21)
         {
-            refresh(hand[DEALER], hand[PLAYER], true);
+            system("clear");
+            printf("%s%s\n", to_string(*hand[DEALER]).c_str(), to_string(hand[PLAYER]).c_str());
 
             char opt;
             std::cout << "(S)tand, (H)it, s(P)lit, (D)ouble: [h]" << std::endl;
@@ -177,39 +177,39 @@ int main()
             {
                 std::string line = get_line();
 
-                opt = line.empty() ? HIT : line[0];
+                opt = line.empty() ? OPT_HIT : line[0];
                 
             } while (std::string("shpd").find(opt = std::tolower(opt)) == std::string::npos ||
-                     (opt == DOUBLE || opt == SPLIT) && bet > money                         ||
-                     opt == SPLIT && rank_of(*(p - 2)) != rank_of(*(p - 1)));
+                     (opt == OPT_DOUBLE || opt == OPT_SPLIT) && bet > money                 ||
+                     opt == OPT_SPLIT && rank_of(*(player - 2)) != rank_of(*(player - 1)));
 
             switch (opt)
             {
-                case HIT:
-                    *p++ = random_card();
+                case OPT_HIT:
+                    *player++ = random_card();
                     hit_loop(false, hand);
                 break;
-                case SPLIT:
-                    money   -= bet;
-                    s        = split;
-                    *s++     = *(p - 1);
-                    *s++     = random_card();
-                    *(p - 1) = random_card();
-                    hit_loop(false, hand, split);
-                    hit_loop(true,  hand, split);
+                case OPT_SPLIT:
+                    money        -= bet;
+                    split         = split;
+                    *split++      = *(player - 1);
+                    *split++      = random_card();
+                    *(player - 1) = random_card();
+                    hit_loop(false, hand);
+                    hit_loop(true,  hand);
                 break;
-                case DOUBLE:
-                    *p++ = random_card();
+                case OPT_DOUBLE:
+                    *player++ = random_card();
                     money -= bet;
                     bet *= 2;
                 break;
             }
         }
 
-        for (Card *hands[3] = { hand[PLAYER], s ? split : s, nullptr }, i = 0, *h; h = hands[i]; i++)
+        for (Card *h, i = PLAYER; i <= SPLIT && *(h = hand[i]); i++)
         {
             if (sum(h) <= 21 && !blackjack(h))
-                for (;sum(hand[DEALER]) < 17; *d++ = random_card());
+                for (;sum(hand[DEALER]) < 17; *dealer++ = random_card());
 
             switch (result(hand[DEALER], h))
             {
@@ -223,8 +223,11 @@ int main()
                     money += bet;
             }
         }
-        
-        refresh(hand[DEALER], hand[PLAYER], false, s ? split : nullptr);
+
+        system("clear");
+        printf("%s%s%s\n", sum(hand[PLAYER]) > 21 ? to_string(*hand[DEALER]).c_str() : to_string(hand[DEALER]).c_str(),
+                           to_string(hand[PLAYER]).c_str(),
+                           to_string(hand[SPLIT] ).c_str());
         
     } while (money);
 }
