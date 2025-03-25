@@ -47,6 +47,7 @@ std::string to_string(Card *hand)
     ss << "(" << sum(hand) << ")\n";
     for (Card *c = hand; *c; c++)
         ss << "+---+ ";
+    ss << "\n";
 
     return ss.str();
 }
@@ -61,7 +62,7 @@ bool blackjack(Card *hand)
     return num_cards == 2 && sum(hand) == 21;
 }
 
-void refresh(Card *dealer, Card *player, bool hide = false)
+void refresh(Card *dealer, Card *player, bool hide, Card *split = nullptr)
 {
     system("clear");
     
@@ -71,10 +72,15 @@ void refresh(Card *dealer, Card *player, bool hide = false)
     }
     else
     {
-        std::cout << to_string(dealer) << "\n";
+        std::cout << to_string(dealer);
     }
 
-    std::cout << to_string(player) << "\n" << std::endl;
+    std::cout << to_string(player);
+
+    if (split)
+        std::cout << to_string(split);
+
+    std::cout << std::endl;
 }
 
 Outcome result(Card *dealer_hand, Card *player_hand)
@@ -94,9 +100,9 @@ Outcome result(Card *dealer_hand, Card *player_hand)
          : dealer == player ? PUSH              : WIN;
 }
 
-void action(Card *dealer, Card *player)
+void hit_loop(Card *dealer, Card *player)
 {
-    for (Card *p = player + 2; sum(player) < 21;)
+    for (Card *p = player + 3; sum(player) < 21;)
     {
         refresh(dealer, player, true);
 
@@ -155,26 +161,39 @@ int main()
         *d++ = random_card(), *d++ = random_card();
         *p++ = random_card(), *p++ = random_card();
 
-        for (Option opt; sum(hand[PLAYER]) < 21;)
+        if (sum(hand[PLAYER]) < 21)
         {
             refresh(hand[DEALER], hand[PLAYER], true);
 
+            char opt;
             std::cout << "(S)tand, (H)it, (D)ouble: [h]" << std::endl;
-            std::string in = get_line();
 
-            switch (opt = in.size() ? in[0] : HIT)
+            do
             {
-                case HIT:
-                    *p++ = random_card();
-                break;
-                case DOUBLE:
-                    *p++ = random_card();
-                    money -= bet;
-                    bet *= 2;
-                break;
-            }
+                std::string line = get_line();
 
-            if (opt == DOUBLE || opt == STAND) break;
+                if (line.empty()) opt = HIT;
+
+                else if (std::istringstream is(line); !(is >> opt))
+                    opt = NONE;
+
+            } while (std::string("shpd").find(opt = std::tolower(opt)) == std::string::npos || opt == DOUBLE && bet > money);
+
+            if (opt == HIT)
+            {
+                *p++ = random_card();
+                hit_loop(hand[DEALER], hand[PLAYER]);
+            }
+            else if (opt == SPLIT)
+            {
+
+            }
+            else if (opt == DOUBLE)
+            {
+                *p++ = random_card();
+                money -= bet;
+                bet *= 2;
+            }
         }
 
         /*refresh(hand[DEALER], hand[PLAYER], true);
@@ -224,7 +243,7 @@ int main()
                 money += bet;
         }
         
-        refresh(hand[DEALER], hand[PLAYER]);
+        refresh(hand[DEALER], hand[PLAYER], false);
         
     } while (money);
 }
