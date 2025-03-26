@@ -11,11 +11,11 @@ typedef unsigned short Suit;
 
 enum Option
 {
-    OPT_NONE   = '\0',
-    OPT_STAND  = 's',
-    OPT_HIT    = 'h',
-    OPT_SPLIT  = 'p',
-    OPT_DOUBLE = 'd'
+    NONE   = '\0',
+    STAND  = 's',
+    HIT    = 'h',
+    SPLIT  = 'p',
+    DOUBLE = 'd'
 };
 
 enum
@@ -36,8 +36,6 @@ enum
 };
 
 enum Outcome { BLACKJACK, WIN, PUSH, LOSS };
-
-enum Hand { DEALER, PLAYER, SPLIT };
 
 enum { CLUBS, DIAMONDS, HEARTS, SPADES };
 
