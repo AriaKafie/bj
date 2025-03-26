@@ -10,7 +10,7 @@
 
 #define BET_DEFAULT 100
 
-void clear() { /*system("clear");*/ }
+void clear() { system("clear"); }
 
 std::string get_line()
 {
@@ -148,7 +148,9 @@ int main()
         if (sum(hand[PLAYER]) < 21)
         {
             clear();
-            printf("%s%s\n", to_string(*hand[DEALER]).c_str(), to_string(hand[PLAYER]).c_str());
+            
+            std::cout << to_string(*hand[DEALER])
+                      << to_string( hand[PLAYER]) << std::endl;
 
             char opt;
             std::cout << "(S)tand, (H)it, s(P)lit, (D)ouble: [h]" << std::endl;
@@ -205,9 +207,9 @@ int main()
         }
 
         clear();
-        printf("%s%s%s\n", sum(hand[PLAYER]) > 21 && (!*hand[SPLIT] || sum(hand[SPLIT]) > 21) ? to_string(*hand[DEALER]).c_str() : to_string(hand[DEALER]).c_str(),
-                           to_string(hand[PLAYER]).c_str(),
-                           to_string(hand[SPLIT] ).c_str());
+        std::cout << (sum(hand[PLAYER]) > 21 && (!*hand[SPLIT] || sum(hand[SPLIT]) > 21) ? to_string(*hand[DEALER]) : to_string(hand[DEALER]))
+                  << to_string(hand[PLAYER])
+                  << to_string(hand[SPLIT]) << std::endl;
         
     } while (money);
 }
