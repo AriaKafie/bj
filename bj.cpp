@@ -90,9 +90,10 @@ void hit_loop(bool do_split, Card (*hand)[11])
     while (sum(hand[do_split ? SPLIT : PLAYER]) < 21)
     {
         clear();
-        printf("%s%s%s\n", to_string(*hand[DEALER]).c_str(),
-               to_string(hand[PLAYER], !do_split && *hand[SPLIT]).c_str(),
-               to_string(hand[SPLIT], do_split).c_str());
+
+        std::cout << to_string(*hand[DEALER])
+                  << to_string( hand[PLAYER], !do_split && *hand[SPLIT])
+                  << to_string( hand[SPLIT ],  do_split) << std::endl;
             
         char opt;
         std::cout << "(S)tand, (H)it: [h]" << std::endl;
