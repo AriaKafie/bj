@@ -8,8 +8,9 @@
 
 #include "types.h"
 
-#define BET_DEFAULT 100
-#define MAX_SPLITS  11
+#define BET_DEFAULT   100
+#define MAX_SPLITS    11
+#define MONEY_DEFAULT 500
 
 typedef struct {
     Card cards[11];
@@ -44,8 +45,6 @@ int sum(Card *hand)
 
 std::string to_string(Card *hand, bool arrow = false)
 {
-    if (!*hand) return "";
-    
     std::stringstream ss;
 
     for (Card *c = hand; *c; c++)
@@ -175,7 +174,7 @@ int main()
     Card dealer[11];
     Hand player[MAX_SPLITS];
 
-    int money = 50000;
+    int money = MONEY_DEFAULT;
 
     do
     {
