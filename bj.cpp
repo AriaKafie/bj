@@ -9,7 +9,7 @@
 #include "types.h"
 
 #define BET_DEFAULT   10
-#define MAX_SPLITS    11
+#define MAX_SPLITS    64
 #define MONEY_DEFAULT 500
 
 typedef struct {
@@ -211,8 +211,8 @@ int main()
             switch (result(dealer, hand->cards))
             {
                 case BLACKJACK:
-                    money += !*player[1].cards ? hand->bet + hand->bet * 3 / 2
-                                               : hand->bet * 2;
+                    money += *player[1].cards ? hand->bet * 2
+                                              : hand->bet + hand->bet * 3 / 2;
                 break;
                 case WIN:
                     money += hand->bet * 2;
