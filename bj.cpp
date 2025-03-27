@@ -10,10 +10,11 @@
 
 #define BET_DEFAULT   10
 #define MAX_SPLITS    64
+#define MAX_CARDS     12
 #define MONEY_DEFAULT 500
 
 typedef struct {
-    Card cards[11];
+    Card cards[MAX_CARDS];
     int bet;
 } Hand;
 
@@ -170,7 +171,7 @@ int main()
 {
     srand(time(NULL));
 
-    Card dealer[11];
+    Card dealer[MAX_CARDS];
     Hand player[MAX_SPLITS];
 
     int money = MONEY_DEFAULT;
