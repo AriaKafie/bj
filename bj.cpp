@@ -98,7 +98,7 @@ void action(Card *dealer, Hand *player, Hand *hand, int *money)
         std::cout << to_string(h->cards, h == hand);
 
     char opt;
-    std::cout << "\n(S)tand, (H)it, s(P)lit, (D)ouble: [h]" << std::endl;
+    printf("\n($%d) (S)tand, (H)it, s(P)lit, (D)ouble: [h]\n", *money);
 
     do
     {
@@ -126,8 +126,7 @@ void action(Card *dealer, Hand *player, Hand *hand, int *money)
             for (Hand *h = player; *h->cards; h++)
                 std::cout << to_string(h->cards, h == hand);
 
-            char opt;
-            std::cout << "\n(S)tand, (H)it: [h]" << std::endl;
+            printf("\n($%d) (S)tand, (H)it: [h]\n", *money);
 
             do
             {
