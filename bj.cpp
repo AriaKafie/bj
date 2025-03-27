@@ -8,7 +8,7 @@
 
 #include "types.h"
 
-#define BET_DEFAULT   100
+#define BET_DEFAULT   10
 #define MAX_SPLITS    11
 #define MONEY_DEFAULT 500
 
@@ -207,11 +207,12 @@ int main()
         {
             if (sum(hand->cards) <= 21 && !blackjack(hand->cards))
                 for (;sum(dealer) < 17; *d++ = random_card());
-
+            
             switch (result(dealer, hand->cards))
             {
                 case BLACKJACK:
-                    money += hand->bet + hand->bet * 3 / 2;
+                    money += !*player[1].cards ? hand->bet + hand->bet * 3 / 2
+                                               : hand->bet * 2;
                 break;
                 case WIN:
                     money += hand->bet * 2;
