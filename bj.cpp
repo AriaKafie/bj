@@ -18,7 +18,13 @@ typedef struct {
     int bet;
 } Hand;
 
-void clear() { system("clear"); }
+void clear() {
+#ifdef _WIN32
+    system("cls");
+#else
+    system("clear");
+#endif
+}
 
 std::string get_line()
 {
