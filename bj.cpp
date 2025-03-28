@@ -58,7 +58,7 @@ std::string to_string(Card *hand, bool arrow = false)
         ss << "+---+ ";
     ss << "\n";
     for (Card *c = hand; *c; c++)
-        ss << "|" << face_string(*c) << "| ";
+        ss << "| " << (" A23456789TJQK"[*c & 0xff]) << " | ";
     ss << "(" << sum(hand) << (arrow ? ") <\n" : ")\n");
     for (Card *c = hand; *c; c++)
         ss << "+---+ ";
@@ -99,7 +99,7 @@ void action(Card *dealer, Hand *player, Hand *hand, int *money)
     if (sum(hand->cards) == 21) return;
     
     clear();
-    std::cout << to_string(*dealer);
+    printf("+---+\n| %c |\n+---+\n", " A23456789TJQK"[*dealer & 0xff]);
 
     for (Hand *h = player; *h->cards; h++)
         std::cout << to_string(h->cards, h == hand);
@@ -128,7 +128,7 @@ void action(Card *dealer, Hand *player, Hand *hand, int *money)
         while (sum(hand->cards) < 21)
         {
             clear();
-            std::cout << to_string(*dealer);
+            printf("+---+\n| %c |\n+---+\n", " A23456789TJQK"[*dealer & 0xff]);
 
             for (Hand *h = player; *h->cards; h++)
                 std::cout << to_string(h->cards, h == hand);
