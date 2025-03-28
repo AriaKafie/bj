@@ -116,7 +116,7 @@ void action(Card *dealer, Hand *player, Hand *hand, int *money)
     case HIT:
     {
         Card *c;
-        for (c = hand->cards; *c; *c++);
+        for (c = hand->cards; *c; c++);
         *c++ = random_card();
 
         while (sum(hand->cards) < 21)
@@ -199,7 +199,7 @@ int main()
         
         Card *d = dealer, *p = player->cards;
         
-        *d++ = random_card(), *d++ = random_card();
+        *d++ = random_card(), *d++ = random_card(),
         *p++ = random_card(), *p++ = random_card();
 
         action(dealer, player, player, &money);
@@ -224,13 +224,8 @@ int main()
             }
         }
 
-        bool bust = true;
-        
-        for (Hand *hand = player; *hand->cards; hand++)
-            if (sum(hand->cards) <= 21) bust = false;
-        
         clear();
-        std::cout << (bust ? to_string(*dealer) : to_string(dealer));
+        std::cout << to_string(dealer);
 
         for (Hand *hand = player; *hand->cards; hand++)
             std::cout << to_string(hand->cards);
