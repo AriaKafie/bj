@@ -90,7 +90,7 @@ Outcome result(Card *dealer_hand, Card *player_hand)
 
 void action(Card *dealer, Hand *player, Hand *hand, int *money)
 {
-    if (sum(hand->cards) >= 21) return;
+    if (sum(hand->cards) == 21) return;
     
     clear();
     std::cout << to_string(*dealer);
