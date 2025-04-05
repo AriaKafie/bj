@@ -58,7 +58,7 @@ std::string to_string(Card *hand, bool arrow = false)
         ss << "+---+ ";
     ss << "\n";
     for (Card *c = hand; *c; c++)
-        ss << "| " << (" A23456789TJQK"[*c & 0xff]) << " | ";
+        ss << "| " << " A23456789TJQK"[*c & 0xff] << " | ";
     ss << "(" << sum(hand) << (arrow ? ") <\n" : ")\n");
     for (Card *c = hand; *c; c++)
         ss << "+---+ ";
